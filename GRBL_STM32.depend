@@ -1,0 +1,494 @@
+# depslib dependency file v1.0
+1533134365 source:d:\arm\grbl_stm32\grbl\gcode.c
+	"grbl.h"
+
+1533134365 d:\arm\grbl_stm32\grbl\grbl.h
+	<avr/io.h>
+	<avr/pgmspace.h>
+	<avr/interrupt.h>
+	<avr/wdt.h>
+	<util/delay.h>
+	<inttypes.h>
+	<stdbool.h>
+	<math.h>
+	<Windows.h>
+	"stm32f10x.h"
+	"stm32f10x_gpio.h"
+	"stm32f10x_exti.h"
+	"stm32f10x_tim.h"
+	"misc.h"
+	<string.h>
+	<stdlib.h>
+	<stdint.h>
+	"config.h"
+	"nuts_bolts.h"
+	"settings.h"
+	"system.h"
+	"defaults.h"
+	"cpu_map.h"
+	"planner.h"
+	"coolant_control.h"
+	"eeprom.h"
+	"gcode.h"
+	"limits.h"
+	"motion_control.h"
+	"planner.h"
+	"print.h"
+	"probe.h"
+	"protocol.h"
+	"report.h"
+	"serial.h"
+	"spindle_control.h"
+	"stepper.h"
+	"jog.h"
+
+1533134428 d:\arm\grbl_stm32\inc\stm32f10x.h
+	"core_cm3.h"
+	"system_stm32f10x.h"
+	<stdint.h>
+	"stm32f10x_conf.h"
+
+1533134428 d:\arm\grbl_stm32\cmsis\core_cm3.h
+	<stdint.h>
+	<core_cmInstr.h>
+	<core_cmFunc.h>
+
+1533134428 d:\arm\grbl_stm32\cmsis\core_cminstr.h
+	<cmsis_iar.h>
+	<cmsis_ccs.h>
+
+1533134428 d:\arm\grbl_stm32\cmsis\core_cmfunc.h
+	<cmsis_iar.h>
+	<cmsis_ccs.h>
+
+1533134428 d:\arm\grbl_stm32\inc\system_stm32f10x.h
+
+1533134428 d:\arm\grbl_stm32\inc\stm32f10x_conf.h
+	"stm32f10x_adc.h"
+	"stm32f10x_bkp.h"
+	"stm32f10x_can.h"
+	"stm32f10x_cec.h"
+	"stm32f10x_crc.h"
+	"stm32f10x_dac.h"
+	"stm32f10x_dbgmcu.h"
+	"stm32f10x_dma.h"
+	"stm32f10x_exti.h"
+	"stm32f10x_flash.h"
+	"stm32f10x_fsmc.h"
+	"stm32f10x_gpio.h"
+	"stm32f10x_i2c.h"
+	"stm32f10x_iwdg.h"
+	"stm32f10x_pwr.h"
+	"stm32f10x_rcc.h"
+	"stm32f10x_rtc.h"
+	"stm32f10x_sdio.h"
+	"stm32f10x_spi.h"
+	"stm32f10x_tim.h"
+	"stm32f10x_usart.h"
+	"stm32f10x_wwdg.h"
+	"misc.h"
+
+1533134428 d:\arm\grbl_stm32\spl\inc\stm32f10x_adc.h
+	"stm32f10x.h"
+
+1533134428 d:\arm\grbl_stm32\spl\inc\stm32f10x_bkp.h
+	"stm32f10x.h"
+
+1533134428 d:\arm\grbl_stm32\spl\inc\stm32f10x_can.h
+	"stm32f10x.h"
+
+1533134428 d:\arm\grbl_stm32\spl\inc\stm32f10x_cec.h
+	"stm32f10x.h"
+
+1533134428 d:\arm\grbl_stm32\spl\inc\stm32f10x_crc.h
+	"stm32f10x.h"
+
+1533134428 d:\arm\grbl_stm32\spl\inc\stm32f10x_dac.h
+	"stm32f10x.h"
+
+1533134428 d:\arm\grbl_stm32\spl\inc\stm32f10x_dbgmcu.h
+	"stm32f10x.h"
+
+1533134428 d:\arm\grbl_stm32\spl\inc\stm32f10x_dma.h
+	"stm32f10x.h"
+
+1533134428 d:\arm\grbl_stm32\spl\inc\stm32f10x_exti.h
+	"stm32f10x.h"
+
+1533134428 d:\arm\grbl_stm32\spl\inc\stm32f10x_flash.h
+	"stm32f10x.h"
+
+1533134428 d:\arm\grbl_stm32\spl\inc\stm32f10x_fsmc.h
+	"stm32f10x.h"
+
+1533134428 d:\arm\grbl_stm32\spl\inc\stm32f10x_gpio.h
+	"stm32f10x.h"
+
+1533134428 d:\arm\grbl_stm32\spl\inc\stm32f10x_i2c.h
+	"stm32f10x.h"
+
+1533134428 d:\arm\grbl_stm32\spl\inc\stm32f10x_iwdg.h
+	"stm32f10x.h"
+
+1533134428 d:\arm\grbl_stm32\spl\inc\stm32f10x_pwr.h
+	"stm32f10x.h"
+
+1533134428 d:\arm\grbl_stm32\spl\inc\stm32f10x_rcc.h
+	"stm32f10x.h"
+
+1533134428 d:\arm\grbl_stm32\spl\inc\stm32f10x_rtc.h
+	"stm32f10x.h"
+
+1533134428 d:\arm\grbl_stm32\spl\inc\stm32f10x_sdio.h
+	"stm32f10x.h"
+
+1533134428 d:\arm\grbl_stm32\spl\inc\stm32f10x_spi.h
+	"stm32f10x.h"
+
+1533134428 d:\arm\grbl_stm32\spl\inc\stm32f10x_tim.h
+	"stm32f10x.h"
+
+1533134428 d:\arm\grbl_stm32\spl\inc\stm32f10x_usart.h
+	"stm32f10x.h"
+
+1533134428 d:\arm\grbl_stm32\spl\inc\stm32f10x_wwdg.h
+	"stm32f10x.h"
+
+1533134428 d:\arm\grbl_stm32\spl\inc\misc.h
+	"stm32f10x.h"
+
+1533134365 d:\arm\grbl_stm32\grbl\config.h
+	"grbl.h"
+
+1533134365 d:\arm\grbl_stm32\grbl\nuts_bolts.h
+	"stm32f10x_rcc.h"
+	"float.h"
+
+1533134365 d:\arm\grbl_stm32\grbl\settings.h
+	"grbl.h"
+
+1533134365 d:\arm\grbl_stm32\grbl\system.h
+	"grbl.h"
+
+1533134365 d:\arm\grbl_stm32\grbl\defaults.h
+
+1533134365 d:\arm\grbl_stm32\grbl\cpu_map.h
+
+1533134365 d:\arm\grbl_stm32\grbl\planner.h
+
+1533134365 d:\arm\grbl_stm32\grbl\coolant_control.h
+
+1533134365 d:\arm\grbl_stm32\grbl\eeprom.h
+
+1533134365 d:\arm\grbl_stm32\grbl\gcode.h
+
+1533134365 d:\arm\grbl_stm32\grbl\limits.h
+
+1533134365 d:\arm\grbl_stm32\grbl\motion_control.h
+
+1533134365 d:\arm\grbl_stm32\grbl\print.h
+
+1533134365 d:\arm\grbl_stm32\grbl\probe.h
+
+1533134365 d:\arm\grbl_stm32\grbl\protocol.h
+
+1533134365 d:\arm\grbl_stm32\grbl\report.h
+
+1533134365 d:\arm\grbl_stm32\grbl\serial.h
+
+1533134365 d:\arm\grbl_stm32\grbl\spindle_control.h
+
+1533134365 d:\arm\grbl_stm32\grbl\stepper.h
+
+1533134365 d:\arm\grbl_stm32\grbl\jog.h
+	"gcode.h"
+
+1533134365 source:d:\arm\grbl_stm32\grbl\coolant_control.c
+	"grbl.h"
+
+1533134365 source:d:\arm\grbl_stm32\grbl\eeprom.c
+	"grbl.h"
+	<avr/io.h>
+	<avr/interrupt.h>
+	<stdio.h>
+	<string.h>
+	<string.h>
+	"stm32eeprom.h"
+	"settings.h"
+
+1533134366 d:\arm\grbl_stm32\util\stm32eeprom.h
+	"stm32f10x_flash.h"
+
+1533134365 source:d:\arm\grbl_stm32\grbl\jog.c
+	"grbl.h"
+
+1533134365 source:d:\arm\grbl_stm32\grbl\limits.c
+	"grbl.h"
+
+1533134365 source:d:\arm\grbl_stm32\grbl\main.c
+	"grbl.h"
+	"usb_lib.h"
+	"usb_desc.h"
+	"hw_config.h"
+	"usb_pwr.h"
+	"stm32eeprom.h"
+	"stm32f10x_usart.h"
+
+1533134366 d:\arm\grbl_stm32\stm_usb_fs_lib\inc\usb_lib.h
+	"stm32f10x.h"
+	"usb_type.h"
+	"usb_regs.h"
+	"usb_def.h"
+	"usb_core.h"
+	"usb_init.h"
+	"usb_mem.h"
+	"usb_int.h"
+	"usb_sil.h"
+	"otgd_fs_cal.h"
+	"otgd_fs_pcd.h"
+	"otgd_fs_dev.h"
+	"otgd_fs_int.h"
+
+1533134366 d:\arm\grbl_stm32\stm_usb_fs_lib\inc\usb_type.h
+	"usb_conf.h"
+
+1533134366 d:\arm\grbl_stm32\usb\usb_conf.h
+
+1533134366 d:\arm\grbl_stm32\stm_usb_fs_lib\inc\usb_regs.h
+
+1533134366 d:\arm\grbl_stm32\stm_usb_fs_lib\inc\usb_def.h
+
+1533134366 d:\arm\grbl_stm32\stm_usb_fs_lib\inc\usb_core.h
+
+1533134366 d:\arm\grbl_stm32\stm_usb_fs_lib\inc\usb_init.h
+
+1533134366 d:\arm\grbl_stm32\stm_usb_fs_lib\inc\usb_mem.h
+
+1533134366 d:\arm\grbl_stm32\stm_usb_fs_lib\inc\usb_int.h
+
+1533134366 d:\arm\grbl_stm32\stm_usb_fs_lib\inc\usb_sil.h
+
+1533134366 d:\arm\grbl_stm32\usb\usb_desc.h
+
+1533134366 d:\arm\grbl_stm32\usb\hw_config.h
+	"usb_type.h"
+
+1533134366 d:\arm\grbl_stm32\usb\usb_pwr.h
+
+1533134365 source:d:\arm\grbl_stm32\grbl\motion_control.c
+	"grbl.h"
+
+1533134365 source:d:\arm\grbl_stm32\grbl\nuts_bolts.c
+	"grbl.h"
+
+1533134365 source:d:\arm\grbl_stm32\grbl\planner.c
+	"grbl.h"
+
+1533134365 source:d:\arm\grbl_stm32\grbl\print.c
+	"grbl.h"
+
+1533134365 source:d:\arm\grbl_stm32\grbl\probe.c
+	"grbl.h"
+
+1533134365 source:d:\arm\grbl_stm32\grbl\protocol.c
+	"grbl.h"
+
+1533134365 source:d:\arm\grbl_stm32\grbl\report.c
+	"grbl.h"
+
+1533134365 source:d:\arm\grbl_stm32\grbl\serial.c
+	"grbl.h"
+	<stdio.h>
+	<process.h>
+	<conio.h>
+	"stm32f10x.h"
+	"core_cm3.h"
+	"stm32f10x_usart.h"
+	"usb_regs.h"
+
+1533134365 source:d:\arm\grbl_stm32\grbl\settings.c
+	"grbl.h"
+
+1533134365 source:d:\arm\grbl_stm32\grbl\spindle_control.c
+	"grbl.h"
+
+1533134365 source:d:\arm\grbl_stm32\grbl\stepper.c
+	"grbl.h"
+	"stm32f10x_rcc.h"
+	"stm32f10x_tim.h"
+	"misc.h"
+	<process.h>
+
+1533134365 source:d:\arm\grbl_stm32\grbl\system.c
+	"grbl.h"
+
+1533134428 source:d:\arm\grbl_stm32\spl\src\misc.c
+	"misc.h"
+
+1533134428 source:d:\arm\grbl_stm32\spl\src\stm32f10x_adc.c
+	"stm32f10x_adc.h"
+	"stm32f10x_rcc.h"
+
+1533134428 source:d:\arm\grbl_stm32\spl\src\stm32f10x_bkp.c
+	"stm32f10x_bkp.h"
+	"stm32f10x_rcc.h"
+
+1533134428 source:d:\arm\grbl_stm32\spl\src\stm32f10x_can.c
+	"stm32f10x_can.h"
+	"stm32f10x_rcc.h"
+
+1533134428 source:d:\arm\grbl_stm32\spl\src\stm32f10x_cec.c
+	"stm32f10x_cec.h"
+	"stm32f10x_rcc.h"
+
+1533134428 source:d:\arm\grbl_stm32\spl\src\stm32f10x_crc.c
+	"stm32f10x_crc.h"
+
+1533134428 source:d:\arm\grbl_stm32\spl\src\stm32f10x_dac.c
+	"stm32f10x_dac.h"
+	"stm32f10x_rcc.h"
+
+1533134428 source:d:\arm\grbl_stm32\spl\src\stm32f10x_dbgmcu.c
+	"stm32f10x_dbgmcu.h"
+
+1533134428 source:d:\arm\grbl_stm32\spl\src\stm32f10x_dma.c
+	"stm32f10x_dma.h"
+	"stm32f10x_rcc.h"
+
+1533134428 source:d:\arm\grbl_stm32\spl\src\stm32f10x_exti.c
+	"stm32f10x_exti.h"
+
+1533134428 source:d:\arm\grbl_stm32\spl\src\stm32f10x_flash.c
+	"stm32f10x_flash.h"
+
+1533134428 source:d:\arm\grbl_stm32\spl\src\stm32f10x_fsmc.c
+	"stm32f10x_fsmc.h"
+	"stm32f10x_rcc.h"
+
+1533134428 source:d:\arm\grbl_stm32\spl\src\stm32f10x_gpio.c
+	"stm32f10x_gpio.h"
+	"stm32f10x_rcc.h"
+
+1533134428 source:d:\arm\grbl_stm32\spl\src\stm32f10x_i2c.c
+	"stm32f10x_i2c.h"
+	"stm32f10x_rcc.h"
+
+1533134428 source:d:\arm\grbl_stm32\spl\src\stm32f10x_iwdg.c
+	"stm32f10x_iwdg.h"
+
+1533134428 source:d:\arm\grbl_stm32\spl\src\stm32f10x_pwr.c
+	"stm32f10x_pwr.h"
+	"stm32f10x_rcc.h"
+
+1533134428 source:d:\arm\grbl_stm32\spl\src\stm32f10x_rcc.c
+	"stm32f10x_rcc.h"
+
+1533134428 source:d:\arm\grbl_stm32\spl\src\stm32f10x_rtc.c
+	"stm32f10x_rtc.h"
+
+1533134428 source:d:\arm\grbl_stm32\spl\src\stm32f10x_sdio.c
+	"stm32f10x_sdio.h"
+	"stm32f10x_rcc.h"
+
+1533134428 source:d:\arm\grbl_stm32\spl\src\stm32f10x_spi.c
+	"stm32f10x_spi.h"
+	"stm32f10x_rcc.h"
+
+1533134428 source:d:\arm\grbl_stm32\spl\src\stm32f10x_tim.c
+	"stm32f10x_tim.h"
+	"stm32f10x_rcc.h"
+
+1533134428 source:d:\arm\grbl_stm32\spl\src\stm32f10x_usart.c
+	"stm32f10x_usart.h"
+	"stm32f10x_rcc.h"
+
+1533134428 source:d:\arm\grbl_stm32\spl\src\stm32f10x_wwdg.c
+	"stm32f10x_wwdg.h"
+	"stm32f10x_rcc.h"
+
+1533134428 source:d:\arm\grbl_stm32\src\startup_stm32f10x_md.s
+
+1533134428 source:d:\arm\grbl_stm32\src\system_stm32f10x.c
+	"stm32f10x.h"
+
+1533134366 source:d:\arm\grbl_stm32\stm_usb_fs_lib\src\usb_core.c
+	"usb_lib.h"
+
+1533134366 source:d:\arm\grbl_stm32\stm_usb_fs_lib\src\usb_init.c
+	"usb_lib.h"
+
+1533134366 source:d:\arm\grbl_stm32\stm_usb_fs_lib\src\usb_int.c
+	"usb_lib.h"
+
+1533134366 source:d:\arm\grbl_stm32\stm_usb_fs_lib\src\usb_mem.c
+	"usb_lib.h"
+
+1533134366 source:d:\arm\grbl_stm32\stm_usb_fs_lib\src\usb_regs.c
+	"usb_lib.h"
+
+1533134366 source:d:\arm\grbl_stm32\stm_usb_fs_lib\src\usb_sil.c
+	"usb_lib.h"
+
+1533134366 source:d:\arm\grbl_stm32\usb\hw_config.c
+	"stm32f10x_it.h"
+	"usb_lib.h"
+	"usb_prop.h"
+	"usb_desc.h"
+	"hw_config.h"
+	"platform_config.h"
+	"usb_pwr.h"
+	"stm32f10x_rcc.h"
+	"misc.h"
+
+1533134366 d:\arm\grbl_stm32\usb\stm32f10x_it.h
+	"stm32f10x.h"
+
+1533134366 d:\arm\grbl_stm32\usb\usb_prop.h
+
+1533134366 d:\arm\grbl_stm32\usb\platform_config.h
+	"stm32f10x.h"
+
+1533134366 source:d:\arm\grbl_stm32\usb\usb_desc.c
+	"usb_lib.h"
+	"usb_desc.h"
+
+1533134366 source:d:\arm\grbl_stm32\usb\usb_endp.c
+	"usb_lib.h"
+	"usb_desc.h"
+	"usb_mem.h"
+	"hw_config.h"
+	"usb_istr.h"
+	"usb_pwr.h"
+	"serial.h"
+
+1533134366 d:\arm\grbl_stm32\usb\usb_istr.h
+	"usb_conf.h"
+
+1533134366 source:d:\arm\grbl_stm32\usb\usb_istr.c
+	"usb_lib.h"
+	"usb_prop.h"
+	"usb_pwr.h"
+	"usb_istr.h"
+
+1533134366 source:d:\arm\grbl_stm32\usb\usb_prop.c
+	"usb_lib.h"
+	"usb_conf.h"
+	"usb_prop.h"
+	"usb_desc.h"
+	"usb_pwr.h"
+	"hw_config.h"
+
+1533134366 source:d:\arm\grbl_stm32\usb\usb_pwr.c
+	"stm32l1xx.h"
+	"stm32f10x.h"
+	"usb_lib.h"
+	"usb_conf.h"
+	"usb_pwr.h"
+	"hw_config.h"
+
+1533134366 source:d:\arm\grbl_stm32\util\stm32f10x_it.c
+	"stm32f10x_it.h"
+	"usb_lib.h"
+	"usb_istr.h"
+	"hw_config.h"
+
