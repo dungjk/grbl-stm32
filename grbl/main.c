@@ -83,11 +83,7 @@ void USART1_Configuration(u32 BaudRate)
 #endif
 
 
-#ifdef WIN32
-int main(int argc, char *argv[])
-#else
 int main(void)
-#endif
 {
 #if defined (STM32F103C8)
     GPIO_PinRemapConfig(GPIO_Remap_SWJ_Disable, ENABLE);
@@ -117,10 +113,6 @@ int main(void)
 #endif
   // Initialize system upon power-up.
   serial_init();   // Setup serial baud rate and interrupts
-#ifdef WIN32
-  winserial_init(argv[1]);
-  eeprom_init();
-#endif
   settings_init(); // Load Grbl settings from EEPROM
   stepper_init();  // Configure stepper pins and interrupt timers
   system_init();   // Configure pinout pins and pin-change interrupt

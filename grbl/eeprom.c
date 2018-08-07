@@ -38,44 +38,13 @@
 /* Define to reduce code size. */
 #define EEPROM_IGNORE_SELFPROG //!< Remove SPM flag polling.
 #endif
-#ifdef WIN32
-#include <stdio.h>
-#include <string.h>
-#endif
 #ifdef STM32F103C8
 #include <string.h>
 #include "stm32eeprom.h"
 #include "settings.h"
 #endif
-#if defined(WIN32) || defined (STM32F103C8)
+#if defined (STM32F103C8)
 unsigned char EE_Buffer[0x400];
-#endif
-#if defined(WIN32)
-#ifndef NOEEPROMSUPPORT
-void eeprom_flush()
-{
-	FILE *out = fopen("eeprom.bin", "wb");
-	fwrite(EE_Buffer, 1, 0x400, out);
-	fclose(out);
-}
-#endif
-void eeprom_init()
-{
-#ifndef NOEEPROMSUPPORT
-	FILE *in = fopen("eeprom.bin", "rb");
-	if (in != NULL)
-	{
-		fread(EE_Buffer, 1, 0x400, in);
-		fclose(in);
-	}
-	else
-	{
-		memset(EE_Buffer, 0xff, 0x400);
-	}
-#else
-	memset(EE_Buffer, 0x0, 0x400);
-#endif
-}
 #endif
 
 #ifdef STM32F103C8
@@ -159,7 +128,7 @@ unsigned char eeprom_get_char( unsigned int addr )
 	EECR = (1<<EERE); // Start EEPROM read operation.
 	return EEDR; // Return the byte read from EEPROM.
 #endif
-#if defined(WIN32) || defined(STM32F103C8)
+#if defined(STM32F103C8)
 	return EE_Buffer[addr];
 #endif
 }
@@ -234,7 +203,7 @@ void eeprom_put_char( unsigned int addr, unsigned char new_value )
 	
 	sei(); // Restore interrupt flag state.
 #endif
-#if defined(WIN32) || defined(STM32F103C8)
+#if defined(STM32F103C8)
 	EE_Buffer[addr] = new_value;
 #endif
 }
@@ -250,7 +219,7 @@ void memcpy_to_eeprom_with_checksum(unsigned int destination, char *source, unsi
     eeprom_put_char(destination++, *(source++)); 
   }
   eeprom_put_char(destination, checksum);
-#if defined(WIN32) || defined(STM32F103C8)
+#if defined(STM32F103C8)
 #ifndef NOEEPROMSUPPORT
   eeprom_flush();
 #endif

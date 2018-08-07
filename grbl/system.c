@@ -76,9 +76,6 @@ uint8_t system_control_get_state()
 #ifdef AVRTARGET
   uint8_t pin = (CONTROL_PIN & CONTROL_MASK);
 #endif
-#ifdef WIN32
-  uint8_t pin = 0;
-#endif
 #ifdef STM32F103C8
   uint16_t pin= GPIO_ReadInputData(CONTROL_PIN_PORT);
 #endif
@@ -420,10 +417,6 @@ uint8_t system_check_travel_limits(float *target)
   return(false);
 }
 
-#ifdef WIN32
-extern CRITICAL_SECTION CriticalSection;
-#endif
-
 // Special handlers for setting and clearing Grbl's real-time execution flags.
 void system_set_exec_state_flag(uint8_t mask) {
 #ifdef AVRTARGET
@@ -431,11 +424,6 @@ void system_set_exec_state_flag(uint8_t mask) {
   cli();
   sys_rt_exec_state |= (mask);
   SREG = sreg;
-#endif
-#ifdef WIN32
-  EnterCriticalSection(&CriticalSection);
-  sys_rt_exec_state |= (mask);
-  LeaveCriticalSection(&CriticalSection);
 #endif
 #ifdef STM32F103C8
   __disable_irq();
@@ -451,11 +439,6 @@ void system_clear_exec_state_flag(uint8_t mask) {
   sys_rt_exec_state &= ~(mask);
   SREG = sreg;
 #endif
-#ifdef WIN32
-  EnterCriticalSection(&CriticalSection);
-  sys_rt_exec_state &= ~(mask);
-  LeaveCriticalSection(&CriticalSection);
-#endif
 #ifdef STM32F103C8
   __disable_irq();
   sys_rt_exec_state &= ~(mask);
@@ -469,11 +452,6 @@ void system_set_exec_alarm(uint8_t code) {
   cli();
   sys_rt_exec_alarm = code;
   SREG = sreg;
-#endif
-#ifdef WIN32
-  EnterCriticalSection(&CriticalSection);
-  sys_rt_exec_alarm |= (code);
-  LeaveCriticalSection(&CriticalSection);
 #endif
 #ifdef STM32F103C8
   __disable_irq();
@@ -489,11 +467,6 @@ void system_clear_exec_alarm() {
   sys_rt_exec_alarm = 0;
   SREG = sreg;
 #endif
-#ifdef WIN32
-  EnterCriticalSection(&CriticalSection);
-  sys_rt_exec_alarm = 0;
-  LeaveCriticalSection(&CriticalSection);
-#endif
 #ifdef STM32F103C8
   __disable_irq();
   sys_rt_exec_alarm = 0;
@@ -507,11 +480,6 @@ void system_set_exec_motion_override_flag(uint8_t mask) {
   cli();
   sys_rt_exec_motion_override |= (mask);
   SREG = sreg;
-#endif
-#ifdef WIN32
-  EnterCriticalSection(&CriticalSection);
-  sys_rt_exec_motion_override |= (mask);
-  LeaveCriticalSection(&CriticalSection);
 #endif
 #ifdef STM32F103C8
   __disable_irq();
@@ -527,11 +495,6 @@ void system_set_exec_accessory_override_flag(uint8_t mask) {
   sys_rt_exec_accessory_override |= (mask);
   SREG = sreg;
 #endif
-#ifdef WIN32
-  EnterCriticalSection(&CriticalSection);
-  sys_rt_exec_accessory_override |= (mask);
-  LeaveCriticalSection(&CriticalSection);
-#endif
 #ifdef STM32F103C8
   __disable_irq();
   sys_rt_exec_accessory_override |= (mask);
@@ -546,11 +509,6 @@ void system_clear_exec_motion_overrides() {
   sys_rt_exec_motion_override = 0;
   SREG = sreg;
 #endif
-#ifdef WIN32
-  EnterCriticalSection(&CriticalSection);
-  sys_rt_exec_motion_override = 0;
-  LeaveCriticalSection(&CriticalSection);
-#endif
 #ifdef STM32F103C8
   __disable_irq();
   sys_rt_exec_motion_override = 0;
@@ -564,11 +522,6 @@ void system_clear_exec_accessory_overrides() {
   cli();
   sys_rt_exec_accessory_override = 0;
   SREG = sreg;
-#endif
-#ifdef WIN32
-  EnterCriticalSection(&CriticalSection);
-  sys_rt_exec_accessory_override = 0;
-  LeaveCriticalSection(&CriticalSection);
 #endif
 #ifdef STM32F103C8
   __disable_irq();

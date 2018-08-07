@@ -84,9 +84,6 @@ void print_uint8_base2_ndigit(uint8_t n, uint8_t digits) {
 #if defined(AVRTARGET) || defined(STM32F103C8)
 	unsigned char buf[digits];
 #endif
-#ifdef WIN32
-	unsigned char buf[20];
-#endif
   uint8_t i = 0;
 
   for (; i < digits; i++) {

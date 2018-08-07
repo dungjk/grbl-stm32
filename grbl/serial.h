@@ -35,18 +35,10 @@
 #endif
 #else
 #define RX_BUFFER_SIZE 254
-#ifndef WIN32
 #define TX_BUFFER_SIZE 128	// Do not try 256 it will not work for STM32.
-#else
-#define TX_BUFFER_SIZE 254
-#endif
 #endif
 
 #define SERIAL_NO_DATA 0xff
-
-#ifdef WIN32
-void winserial_init(char *pPort);
-#endif
 
 void serial_init();
 

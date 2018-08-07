@@ -82,16 +82,6 @@ const PORTPINDEF limit_pin_mask[N_AXIS] =
     error "AMASS must have 1 or more levels to operate correctly."
   #endif
 #endif
-#ifdef WIN32
-#include <process.h> 
-unsigned char PORTB = 0;
-unsigned char DDRD = 0;
-unsigned char DDRB = 0;
-unsigned char PORTD = 0;
-LARGE_INTEGER Win32Frequency;
-LONGLONG nTimer1Out = 0;
-LONGLONG nTimer0Out = 0;
-#endif
 
 
 // Stores the planner block Bresenham algorithm execution data for the segments in the segment
@@ -140,11 +130,8 @@ typedef struct {
   #endif
 
   uint8_t execute_step;     // Flags step execution for each interrupt.
-#ifndef WIN32
   uint8_t step_pulse_time;  // Step pulse reset time after step rise
-#else
-  LONGLONG step_pulse_time;
-#endif
+
   PORTPINDEF step_outbits;         // The next stepping-bits to be output
   PORTPINDEF dir_outbits;
   #ifdef ADAPTIVE_MULTI_AXIS_STEP_SMOOTHING
@@ -276,8 +263,6 @@ void st_wake_up()
     // Set step pulse time. Ad hoc computation from oscilloscope. Uses two's complement.
 #ifdef AVRTARGET
   st.step_pulse_time = -(((settings.pulse_microseconds - 2)*TICKS_PER_MICROSECOND) >> 3);
-#elif defined (WIN32)
-  st.step_pulse_time = (settings.pulse_microseconds)*TICKS_PER_MICROSECOND;
 #elif defined(STM32F103C8)
   st.step_pulse_time = (settings.pulse_microseconds)*TICKS_PER_MICROSECOND;
 #endif
@@ -286,9 +271,6 @@ void st_wake_up()
   // Enable Stepper Driver Interrupt
 #ifdef AVRTARGET
   TIMSK1 |= (1<<OCIE1A);
-#endif
-#ifdef WIN32
-  nTimer1Out = 1;
 #endif
 #if defined (STM32F103C8)
   TIM3->ARR = st.step_pulse_time - 1;
@@ -314,9 +296,7 @@ void st_go_idle()
   TIMSK1 &= ~(1<<OCIE1A); // Disable Timer1 interrupt
   TCCR1B = (TCCR1B & ~((1<<CS12) | (1<<CS11))) | (1<<CS10); // Reset clock to no prescaling.
 #endif
-#ifdef WIN32
-  nTimer1Out = 0;
-#endif
+
 #ifdef STM32F103C8
   NVIC_DisableIRQ(TIM2_IRQn);
 #endif
@@ -397,9 +377,6 @@ void TIM2_IRQHandler(void)
 #ifdef AVRTARGET
 ISR(TIMER1_COMPA_vect)
 #endif
-#ifdef WIN32
-void Timer1Proc()
-#endif
 {
 #ifdef STM32F103C8
 	if ((TIM2->SR & 0x0001) != 0)                  // check interrupt source
@@ -441,9 +418,6 @@ void Timer1Proc()
   TCNT0 = st.step_pulse_time; // Reload Timer0 counter
   TCCR0B = (1<<CS01); // Begin Timer0. Full speed, 1/8 prescaler
 #endif
-#ifdef WIN32
-  nTimer0Out = st.step_pulse_time;
-#endif
 #ifdef STM32F103C8
   NVIC_EnableIRQ(TIM3_IRQn);
 #endif
@@ -471,13 +445,6 @@ void Timer1Proc()
       // Initialize step segment timing per step and load number of steps to execute.
 #ifdef AVRTARGET
       OCR1A = st.exec_segment->cycles_per_tick;
-#endif
-#ifdef WIN32
-#ifndef ADAPTIVE_MULTI_AXIS_STEP_SMOOTHING
-	  nTimer1Out = st.exec_segment->cycles_per_tick * (st.exec_segment->prescaler + 1);
-#else
-	  nTimer1Out = st.exec_segment->cycles_per_tick;
-#endif
 #endif
 #ifdef STM32F103C8
 	  TIM2->ARR = st.exec_segment->cycles_per_tick - 1;
@@ -571,17 +538,12 @@ void Timer1Proc()
   if (st.step_count == 0) {
     // Segment is complete. Discard current segment and advance segment indexing.
     st.exec_segment = NULL;
-#ifndef WIN32
-	uint8_t segment_tail_next = segment_buffer_tail + 1;
-	if (segment_tail_next == SEGMENT_BUFFER_SIZE)
-		segment_tail_next = 0;
-	segment_buffer_tail = segment_tail_next;
-#else
-    if ( ++segment_buffer_tail == SEGMENT_BUFFER_SIZE) 
-	{ 
-		segment_buffer_tail = 0; 
-	}
-#endif
+    uint8_t segment_tail_next = segment_buffer_tail + 1;
+    if (segment_tail_next == SEGMENT_BUFFER_SIZE)
+    {
+      segment_tail_next = 0;
+    }
+    segment_buffer_tail = segment_tail_next;
   }
 
   st.step_outbits ^= step_port_invert_mask;  // Apply step port invert mask
@@ -606,9 +568,6 @@ void TIM3_IRQHandler(void)
 #ifdef AVRTARGET
 ISR(TIMER0_OVF_vect)
 #endif
-#ifdef WIN32
-void Timer0Proc()
-#endif
 {
 #ifdef STM32F103C8
 	if ((TIM3->SR & 0x0001) != 0)                  // check interrupt source
@@ -623,9 +582,6 @@ void Timer0Proc()
   // Reset stepping pins (leave the direction pins)
   STEP_PORT = (STEP_PORT & ~STEP_MASK) | (step_port_invert_mask & STEP_MASK);
   TCCR0B = 0; // Disable Timer0 to prevent re-entering this interrupt when it's not needed.
-#endif
-#ifdef WIN32
-  nTimer0Out = 0;
 #endif
 }
 #ifdef STEP_PULSE_DELAY
@@ -684,45 +640,6 @@ void st_reset()
 #endif
 }
 
-#ifdef WIN32
-void Timer1Thread(void *pVoid)
-{
-	LARGE_INTEGER StartingTime, EndingTime, ElapsedMicroseconds;
-
-	for (;;)
-	{
-		while (nTimer1Out == 0)
-			Sleep(0);
-		QueryPerformanceCounter(&StartingTime);
-		do
-		{
-			QueryPerformanceCounter(&EndingTime);
-			ElapsedMicroseconds.QuadPart = EndingTime.QuadPart - StartingTime.QuadPart;
-		} while (ElapsedMicroseconds.QuadPart < nTimer1Out);
-		Timer1Proc();
-	}
-}
-
-void Timer0Thread(void *pVoid)
-{
-	LARGE_INTEGER StartingTime, EndingTime, ElapsedMicroseconds;
-
-	for (;;)
-	{
-		while (nTimer0Out == 0)
-			Sleep(0);
-		QueryPerformanceCounter(&StartingTime);
-		do
-		{
-			QueryPerformanceCounter(&EndingTime);
-			ElapsedMicroseconds.QuadPart = EndingTime.QuadPart - StartingTime.QuadPart;
-		} while (ElapsedMicroseconds.QuadPart < nTimer0Out);
-		Timer0Proc();
-	}
-}
-
-#endif
-
 // Initialize and start the stepper motor subsystem
 void stepper_init()
 {
@@ -771,12 +688,6 @@ void stepper_init()
   #ifdef STEP_PULSE_DELAY
     TIMSK0 |= (1<<OCIE0A); // Enable Timer0 Compare Match A interrupt
   #endif
-#endif
-#ifdef WIN32
-	QueryPerformanceFrequency(&Win32Frequency);
-
-	_beginthread(Timer1Thread, 0, NULL);
-	_beginthread(Timer0Thread, 0, NULL);
 #endif
 }
 

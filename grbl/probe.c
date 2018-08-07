@@ -69,9 +69,6 @@ uint8_t probe_get_state()
 #ifdef AVRTARGET
 	return((PROBE_PIN & PROBE_MASK) ^ probe_invert_mask); 
 #endif
-#ifdef WIN32
-	return 0;
-#endif
 #ifdef STM32F103C8
 	return ((GPIO_ReadInputData(PROBE_PORT) & PROBE_MASK) ^ probe_invert_mask) != 0;
 #endif

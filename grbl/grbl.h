@@ -25,7 +25,7 @@
 #define GRBL_VERSION "1.1f"
 #define GRBL_VERSION_BUILD "20170801"
 
-#if !defined(STM32F103C8) && !defined(WIN32)
+#if !defined(STM32F103C8)
 #define AVRTARGET
 #endif
 
@@ -41,29 +41,6 @@
 #define PORTPINDEF uint8_t
 #endif
 #include <math.h>
-#ifdef WIN32
-#include <Windows.h>
-typedef signed char  int8_t;
-typedef signed short int16_t;
-typedef signed int   int32_t;
-typedef unsigned char  uint8_t;
-typedef unsigned short uint16_t;
-typedef unsigned int   uint32_t;
-typedef signed long long   int64_t;
-typedef unsigned long long uint64_t;
-typedef int bool;
-#define false 0
-#define true 1
-#define truncf(x) (int32_t)x
-#define PSTR(x) x
-#define pgm_read_byte_near(x) *(x)
-#define _delay_ms(x) Sleep(x)
-#define M_PI 3.1415926f
-#define LOG(x,y)
-#define PORTPINDEF uint8_t
-#define printPgmString printString
-//#define NOEEPROMSUPPORT
-#endif
 #ifdef STM32F103C8
 #include "stm32f10x.h"
 #include "stm32f10x_gpio.h"

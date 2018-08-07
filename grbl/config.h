@@ -36,9 +36,6 @@
 // If doing so, simply comment out these two defines and see instructions below.
 //#define DEFAULTS_GENERIC
 #define DEFAULT_CNC3020
-#ifdef WIN32
-#define CPU_MAP_WIN32
-#endif
 #ifdef AVRTARGET
 #define CPU_MAP_ATMEGA328P // Arduino Uno CPU
 #endif
