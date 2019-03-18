@@ -28,15 +28,6 @@ uint8_t probe_invert_mask;
 // Probe pin initialization routine.
 void probe_init()
 {
-#ifdef AVRTARGET
-  PROBE_DDR &= ~(PROBE_MASK); // Configure as input pins
-  #ifdef DISABLE_PROBE_PIN_PULL_UP
-    PROBE_PORT &= ~(PROBE_MASK); // Normal low operation. Requires external pull-down.
-  #else
-    PROBE_PORT |= PROBE_MASK;    // Enable internal pull-up resistors. Normal high operation.
-  #endif
-#endif
-#ifdef STM32F103C8
 	GPIO_InitTypeDef GPIO_InitStructure;
 	RCC_APB2PeriphClockCmd(RCC_PROBE_PORT, ENABLE);
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
@@ -47,7 +38,6 @@ void probe_init()
 #endif
 	GPIO_InitStructure.GPIO_Pin = PROBE_MASK;
 	GPIO_Init(PROBE_PORT, &GPIO_InitStructure);
-#endif
   probe_configure_invert_mask(false); // Initialize invert mask.
 }
 
@@ -66,12 +56,7 @@ void probe_configure_invert_mask(uint8_t is_probe_away)
 // Returns the probe pin state. Triggered = true. Called by gcode parser and probe state monitor.
 uint8_t probe_get_state() 
 { 
-#ifdef AVRTARGET
-	return((PROBE_PIN & PROBE_MASK) ^ probe_invert_mask); 
-#endif
-#ifdef STM32F103C8
 	return ((GPIO_ReadInputData(PROBE_PORT) & PROBE_MASK) ^ probe_invert_mask) != 0;
-#endif
 }
 
 

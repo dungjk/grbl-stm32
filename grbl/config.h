@@ -36,12 +36,7 @@
 // If doing so, simply comment out these two defines and see instructions below.
 //#define DEFAULTS_GENERIC
 #define DEFAULT_CNC3020
-#ifdef AVRTARGET
-#define CPU_MAP_ATMEGA328P // Arduino Uno CPU
-#endif
-#ifdef STM32F103C8
 #define CPU_MAP_STM32F103
-#endif
 
 // Serial baud rate
 // #define BAUD_RATE 230400
@@ -465,10 +460,8 @@
 // 115200 baud will take 5 msec to transmit a typical 55 character report. Worst case reports are
 // around 90-100 characters. As long as the serial TX buffer doesn't get continually maxed, Grbl
 // will continue operating efficiently. Size the TX buffer around the size of a worst-case report.
-#if !defined (STM32F103C8)
 // #define RX_BUFFER_SIZE 128 // (1-254) Uncomment to override defaults in serial.h
 // #define TX_BUFFER_SIZE 100 // (1-254)
-#endif
 
 // A simple software debouncing feature for hard limit switches. When enabled, the interrupt 
 // monitoring the hard limit switch pins will enable the Arduino's watchdog timer to re-check 

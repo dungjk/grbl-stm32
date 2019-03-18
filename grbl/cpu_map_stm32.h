@@ -1,8 +1,6 @@
 #ifndef __cpu_map_stm32_h__
 #define __cpu_map_stm32_h__
 
-#ifdef CPU_MAP_STM32F103
-
 // Define step pulse output pins. NOTE: All step bit pins must be on the same port.
 #define STEP_PORT GPIOA
 #define RCC_STEP_PORT RCC_APB2Periph_GPIOA
@@ -114,7 +112,5 @@
 //   13 14 SWD																		SPINDLE_ENABLE_BIT
 //     14																						SPINDLE_DIRECTION_BIT
 //   15     PROBE_BIT
-
-#endif // CPU_MAP_STM32F103
 
 #endif

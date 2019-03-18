@@ -32,29 +32,6 @@
 
 void limits_init()
 {
-#ifdef AVRTARGET
-  LIMIT_DDR &= ~(LIMIT_MASK); // Set as input pins
-
-  #ifdef DISABLE_LIMIT_PIN_PULL_UP
-    LIMIT_PORT &= ~(LIMIT_MASK); // Normal low operation. Requires external pull-down.
-  #else
-    LIMIT_PORT |= (LIMIT_MASK);  // Enable internal pull-up resistors. Normal high operation.
-  #endif
-
-  if (bit_istrue(settings.flags,BITFLAG_HARD_LIMIT_ENABLE)) {
-    LIMIT_PCMSK |= LIMIT_MASK; // Enable specific pins of the Pin Change Interrupt
-    PCICR |= (1 << LIMIT_INT); // Enable Pin Change Interrupt
-  } else {
-    limits_disable();
-  }
-
-  #ifdef ENABLE_SOFTWARE_DEBOUNCE
-    MCUSR &= ~(1<<WDRF);
-    WDTCSR |= (1<<WDCE) | (1<<WDE);
-    WDTCSR = (1<<WDP0); // Set time-out at ~32msec.
-  #endif
-#endif
-#ifdef STM32F103C8
 	GPIO_InitTypeDef GPIO_InitStructure;
 	RCC_APB2PeriphClockCmd(RCC_LIMIT_PORT | RCC_APB2Periph_AFIO, ENABLE);
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
@@ -86,20 +63,13 @@ void limits_init()
 	{
 		limits_disable();
 	}
-#endif
 }
 
 
 // Disables hard limits.
 void limits_disable()
 {
-#ifdef AVRTARGET
-  LIMIT_PCMSK &= ~LIMIT_MASK;  // Disable specific pins of the Pin Change Interrupt
-  PCICR &= ~(1 << LIMIT_INT);  // Disable Pin Change Interrupt
-#endif
-#ifdef STM32F103C8
   NVIC_DisableIRQ(EXTI15_10_IRQn);
-#endif
 }
 
 
@@ -109,13 +79,7 @@ void limits_disable()
 uint8_t limits_get_state()
 {
   uint8_t limit_state = 0;
-#if defined(AVRTARGET) || defined(STM32F103C8)
-#if defined(AVRTARGET)
-  uint8_t pin = (LIMIT_PIN & LIMIT_MASK);
-#endif
-#if defined(STM32F103C8)
   uint16_t pin = GPIO_ReadInputData(LIMIT_PIN);
-#endif
   #ifdef INVERT_LIMIT_PIN_MASK
     pin ^= INVERT_LIMIT_PIN_MASK;
   #endif
@@ -126,7 +90,6 @@ uint8_t limits_get_state()
       if (pin & limit_pin_mask[idx]) { limit_state |= (1 << idx); }
     }
   }
-#endif
   return(limit_state);
 }
 
@@ -143,14 +106,8 @@ uint8_t limits_get_state()
 // special pinout for an e-stop, but it is generally recommended to just directly connect
 // your e-stop switch to the Arduino reset pin, since it is the most correct way to do this.
 #ifndef ENABLE_SOFTWARE_DEBOUNCE
-#if defined(AVRTARGET) || defined (STM32F103C8)
-#if defined(AVRTARGET) 
-ISR(LIMIT_INT_vect) // DEFAULT: Limit pin change interrupt process.
-#else
 void EXTI15_10_IRQHandler(void)
-#endif
 {
-#if defined (STM32F103C8)
 	if (EXTI_GetITStatus(1 << X_LIMIT_BIT) != RESET)
 	{
 		EXTI_ClearITPendingBit(1 << X_LIMIT_BIT);
@@ -164,7 +121,7 @@ void EXTI15_10_IRQHandler(void)
 		EXTI_ClearITPendingBit(1 << Z_LIMIT_BIT);
 	}
 	NVIC_ClearPendingIRQ(EXTI15_10_IRQn);
-#endif
+
   // Ignore limit switches if already in an alarm state or in-process of executing an alarm.
   // When in the alarm state, Grbl should have been reset or will force a reset, so any pending
   // moves in the planner and serial buffers are all cleared and newly sent blocks will be
@@ -185,27 +142,8 @@ void EXTI15_10_IRQHandler(void)
     }
   }
 }
-#endif
 #else // OPTIONAL: Software debounce limit pin routine.
-#if defined(AVRTARGET)
-// Upon limit pin change, enable watchdog timer to create a short delay. 
-ISR(LIMIT_INT_vect) { if (!(WDTCSR & (1 << WDIE))) { WDTCSR |= (1 << WDIE); } }
-ISR(WDT_vect) // Watchdog timer ISR
-{
-  WDTCSR &= ~(1 << WDIE); // Disable watchdog timer. 
-  if (sys.state != STATE_ALARM) {  // Ignore if already in alarm state. 
-    if (!(sys_rt_exec_alarm)) {
-      // Check limit pin state. 
-      if (limits_get_state()) {
-        mc_reset(); // Initiate system kill.
-        system_set_exec_alarm(EXEC_ALARM_HARD_LIMIT); // Indicate hard limit critical event
-      }
-    }
-  }
-}
-#else
 #error ENABLE_SOFTWARE_DEBOUNCE is not supported yet
-#endif
 #endif
 
 // Homes the specified cycle axes, sets the machine position, and performs a pull-off motion after

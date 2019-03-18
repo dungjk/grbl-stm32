@@ -23,11 +23,7 @@
 #define stepper_h
 
 #ifndef SEGMENT_BUFFER_SIZE
-#ifdef AVRTARGET
-#define SEGMENT_BUFFER_SIZE 6
-#else
 #define SEGMENT_BUFFER_SIZE 10
-#endif
 #endif
 
 // Initialize and setup the stepper motor subsystem

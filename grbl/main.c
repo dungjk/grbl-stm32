@@ -33,7 +33,6 @@ volatile uint8_t sys_rt_exec_accessory_override; // Global realtime executor bit
 volatile uint8_t sys_rt_exec_debug;
 #endif
 
-#if defined (STM32F103C8)
 #include "usb_lib.h"
 #ifdef USEUSB
 #include "usb_desc.h"
@@ -80,13 +79,10 @@ void USART1_Configuration(u32 BaudRate)
 }
 #endif
 
-#endif
-
 
 int main(void)
 {
-#if defined (STM32F103C8)
-    GPIO_PinRemapConfig(GPIO_Remap_SWJ_Disable, ENABLE);
+  GPIO_PinRemapConfig(GPIO_Remap_SWJ_Disable, ENABLE);
 #ifdef LEDBLINK
 	GPIO_InitTypeDef GPIO_InitStructure;
 
@@ -110,7 +106,6 @@ int main(void)
 	eeprom_init();
 #endif
 	SysTick->CTRL &= 0xfffffffb;
-#endif
   // Initialize system upon power-up.
   serial_init();   // Setup serial baud rate and interrupts
   settings_init(); // Load Grbl settings from EEPROM
@@ -118,9 +113,7 @@ int main(void)
   system_init();   // Configure pinout pins and pin-change interrupt
 
   memset(sys_position,0,sizeof(sys_position)); // Clear machine position.
-#ifdef AVRTARGET
-  sei(); // Enable interrupts
-#endif
+
   // Initialize system state.
   #ifdef FORCE_INITIALIZATION_ALARM
     // Force Grbl into an ALARM state upon a power-cycle or hard reset.
@@ -181,7 +174,7 @@ int main(void)
   }
   return 0;   /* Never reached */
 }
-#if defined (STM32F103C8)
+
 void _delay_ms(uint32_t x)
 {
 	u32 temp;
@@ -201,4 +194,3 @@ void LedBlink(void)
 	GPIO_WriteBit(GPIOC, GPIO_Pin_13, nOnFlag);
 	nOnFlag = (nOnFlag == Bit_SET) ? Bit_RESET : Bit_SET;
 }
-#endif

@@ -25,7 +25,6 @@
 #ifndef cpu_map_h
 #define cpu_map_h
 
-#include "cpu_map_avr.h"
 #include "cpu_map_stm32.h"
 
 /*

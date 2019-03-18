@@ -21,13 +21,11 @@
 
 #include "grbl.h"
 
-#ifdef STM32F103C8
 typedef int bool;
 #include "stm32f10x_rcc.h"
 #include "stm32f10x_tim.h"
 #include "misc.h"
 void TIM_Configuration(TIM_TypeDef* TIMER, u16 Period, u16 Prescaler, u8 PP);
-#endif
 
 
 // Some useful constants.
@@ -261,18 +259,10 @@ void st_wake_up()
     OCR0A = -(((settings.pulse_microseconds)*TICKS_PER_MICROSECOND) >> 3);
   #else // Normal operation
     // Set step pulse time. Ad hoc computation from oscilloscope. Uses two's complement.
-#ifdef AVRTARGET
-  st.step_pulse_time = -(((settings.pulse_microseconds - 2)*TICKS_PER_MICROSECOND) >> 3);
-#elif defined(STM32F103C8)
-  st.step_pulse_time = (settings.pulse_microseconds)*TICKS_PER_MICROSECOND;
-#endif
+    st.step_pulse_time = (settings.pulse_microseconds)*TICKS_PER_MICROSECOND;
   #endif
 
   // Enable Stepper Driver Interrupt
-#ifdef AVRTARGET
-  TIMSK1 |= (1<<OCIE1A);
-#endif
-#if defined (STM32F103C8)
   TIM3->ARR = st.step_pulse_time - 1;
   TIM3->EGR = TIM_PSCReloadMode_Immediate;
   TIM_ClearITPendingBit(TIM3, TIM_IT_Update);
@@ -284,7 +274,6 @@ void st_wake_up()
 #endif
   TIM2->EGR = TIM_PSCReloadMode_Immediate;
   NVIC_EnableIRQ(TIM2_IRQn);
-#endif
 }
 
 
@@ -292,14 +281,7 @@ void st_wake_up()
 void st_go_idle()
 {
   // Disable Stepper Driver Interrupt. Allow Stepper Port Reset Interrupt to finish, if active.
-#ifdef AVRTARGET
-  TIMSK1 &= ~(1<<OCIE1A); // Disable Timer1 interrupt
-  TCCR1B = (TCCR1B & ~((1<<CS12) | (1<<CS11))) | (1<<CS10); // Reset clock to no prescaling.
-#endif
-
-#ifdef STM32F103C8
   NVIC_DisableIRQ(TIM2_IRQn);
-#endif
 
   busy = false;
 
@@ -371,14 +353,8 @@ void st_go_idle()
 // TODO: Replace direct updating of the int32 position counters in the ISR somehow. Perhaps use smaller
 // int8 variables and update position counters only when a segment completes. This can get complicated
 // with probing and homing cycles that require true real-time positions.
-#ifdef STM32F103C8
 void TIM2_IRQHandler(void)
-#endif
-#ifdef AVRTARGET
-ISR(TIMER1_COMPA_vect)
-#endif
 {
-#ifdef STM32F103C8
 	if ((TIM2->SR & 0x0001) != 0)                  // check interrupt source
 	{
 		TIM2->SR &= ~(1 << 0);                          // clear UIF flag
@@ -388,45 +364,23 @@ ISR(TIMER1_COMPA_vect)
 	{
 		return;
 	}
-#endif
 
   if (busy) { return; } // The busy-flag is used to avoid reentering this interrupt
-#ifdef AVRTARGET
-  // Set the direction pins a couple of nanoseconds before we step the steppers
-  DIRECTION_PORT = (DIRECTION_PORT & ~DIRECTION_MASK) | (st.dir_outbits & DIRECTION_MASK);
-#endif
-#ifdef STM32F103C8
   GPIO_Write(DIRECTION_PORT, (GPIO_ReadOutputData(DIRECTION_PORT) & ~DIRECTION_MASK) | (st.dir_outbits & DIRECTION_MASK));
   TIM_ClearITPendingBit(TIM3, TIM_IT_Update);
-#endif
 
   // Then pulse the stepping pins
   #ifdef STEP_PULSE_DELAY
     st.step_bits = (STEP_PORT & ~STEP_MASK) | st.step_outbits; // Store out_bits to prevent overwriting.
   #else  // Normal operation
-#ifdef AVRTARGET
-    STEP_PORT = (STEP_PORT & ~STEP_MASK) | st.step_outbits;
-#endif
-#ifdef STM32F103C8
 	GPIO_Write(STEP_PORT, (GPIO_ReadOutputData(STEP_PORT) & ~STEP_MASK) | st.step_outbits);
-#endif
   #endif
 
   // Enable step pulse reset timer so that The Stepper Port Reset Interrupt can reset the signal after
   // exactly settings.pulse_microseconds microseconds, independent of the main Timer1 prescaler.
-#ifdef AVRTARGET
-  TCNT0 = st.step_pulse_time; // Reload Timer0 counter
-  TCCR0B = (1<<CS01); // Begin Timer0. Full speed, 1/8 prescaler
-#endif
-#ifdef STM32F103C8
   NVIC_EnableIRQ(TIM3_IRQn);
-#endif
 
   busy = true;
-#ifdef AVRTARGET
-  sei(); // Re-enable interrupts to allow Stepper Port Reset Interrupt to fire on-time.
-         // NOTE: The remaining code in this ISR will finish before returning to main program.
-#endif
 
   // If there is no step segment, attempt to pop one from the stepper buffer
   if (st.exec_segment == NULL) {
@@ -435,23 +389,11 @@ ISR(TIMER1_COMPA_vect)
       // Initialize new step segment and load number of steps to execute
       st.exec_segment = &segment_buffer[segment_buffer_tail];
 
-      #ifndef ADAPTIVE_MULTI_AXIS_STEP_SMOOTHING
-        // With AMASS is disabled, set timer prescaler for segments with slow step frequencies (< 250Hz).
-#ifdef AVRTARGET
-        TCCR1B = (TCCR1B & ~(0x07<<CS10)) | (st.exec_segment->prescaler<<CS10);
-#endif
-      #endif
-
       // Initialize step segment timing per step and load number of steps to execute.
-#ifdef AVRTARGET
-      OCR1A = st.exec_segment->cycles_per_tick;
-#endif
-#ifdef STM32F103C8
 	  TIM2->ARR = st.exec_segment->cycles_per_tick - 1;
 	  /* Set the Autoreload value */
 #ifndef ADAPTIVE_MULTI_AXIS_STEP_SMOOTHING        
 	  TIM2->PSC = st.exec_segment->prescaler;
-#endif
 #endif
       st.step_count = st.exec_segment->n_step; // NOTE: Can sometimes be zero when moving slow.
       // If the new segment starts a new planner block, initialize stepper variables and counters.
@@ -562,39 +504,17 @@ ISR(TIMER1_COMPA_vect)
 // This interrupt is enabled by ISR_TIMER1_COMPAREA when it sets the motor port bits to execute
 // a step. This ISR resets the motor port after a short period (settings.pulse_microseconds)
 // completing one step cycle.
-#ifdef STM32F103C8
 void TIM3_IRQHandler(void)
-#endif
-#ifdef AVRTARGET
-ISR(TIMER0_OVF_vect)
-#endif
 {
-#ifdef STM32F103C8
 	if ((TIM3->SR & 0x0001) != 0)                  // check interrupt source
 	{
 		TIM3->SR &= ~(1<<0);                          // clear UIF flag
 		TIM3->CNT = 0;
 		NVIC_DisableIRQ(TIM3_IRQn);
+    // Reset stepping pins (leave the direction pins)
 		GPIO_Write(STEP_PORT, (GPIO_ReadOutputData(STEP_PORT) & ~STEP_MASK) | (step_port_invert_mask & STEP_MASK));
 	}
-#endif
-#ifdef AVRTARGET
-  // Reset stepping pins (leave the direction pins)
-  STEP_PORT = (STEP_PORT & ~STEP_MASK) | (step_port_invert_mask & STEP_MASK);
-  TCCR0B = 0; // Disable Timer0 to prevent re-entering this interrupt when it's not needed.
-#endif
 }
-#ifdef STEP_PULSE_DELAY
-  // This interrupt is used only when STEP_PULSE_DELAY is enabled. Here, the step pulse is
-  // initiated after the STEP_PULSE_DELAY time period has elapsed. The ISR TIMER2_OVF interrupt
-  // will then trigger after the appropriate settings.pulse_microseconds, as in normal operation.
-  // The new timing between direction, step pulse, and step complete events are setup in the
-  // st_wake_up() routine.
-  ISR(TIMER0_COMPA_vect)
-  {
-    STEP_PORT = st.step_bits; // Begin step pulse.
-  }
-#endif
 
 
 // Generates the step and direction port invert masks used in the Stepper Interrupt Driver.
@@ -630,21 +550,14 @@ void st_reset()
   st.dir_outbits = dir_port_invert_mask; // Initialize direction bits to default.
 
   // Initialize step and direction port pins.
-#ifdef AVRTARGET
-  STEP_PORT = (STEP_PORT & ~STEP_MASK) | step_port_invert_mask;
-  DIRECTION_PORT = (DIRECTION_PORT & ~DIRECTION_MASK) | dir_port_invert_mask;
-#endif
-#ifdef STM32F103C8
   GPIO_Write(STEP_PORT, (GPIO_ReadOutputData(STEP_PORT) & ~STEP_MASK) | (step_port_invert_mask & STEP_MASK));
   GPIO_Write(DIRECTION_PORT, (GPIO_ReadOutputData(DIRECTION_PORT) & ~DIRECTION_MASK) | (dir_port_invert_mask & DIRECTION_MASK));
-#endif
 }
 
 // Initialize and start the stepper motor subsystem
 void stepper_init()
 {
   // Configure step and direction interface pins
-#ifdef STM32F103C8
 	GPIO_InitTypeDef GPIO_InitStructure;
 	RCC_APB2PeriphClockCmd(RCC_STEPPERS_DISABLE_PORT, ENABLE);
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
@@ -659,36 +572,20 @@ void stepper_init()
 	RCC_APB2PeriphClockCmd(RCC_DIRECTION_PORT, ENABLE);
 	GPIO_InitStructure.GPIO_Pin = DIRECTION_MASK;
 	GPIO_Init(DIRECTION_PORT, &GPIO_InitStructure);
-
-	RCC->APB1ENR |= RCC_APB1Periph_TIM2;
+  
+  // Configurating TIM2
+  RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
+	// RCC->APB1ENR |= RCC_APB1Periph_TIM2;
 	TIM_Configuration(TIM2, 1, 1, 1);
-	RCC->APB1ENR |= RCC_APB1Periph_TIM3;
+
+  // Configurating TIM3
+  RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
+	// RCC->APB1ENR |= RCC_APB1Periph_TIM3;
 	TIM_Configuration(TIM3, 1, 1, 1);
+
+  // Stop/Distable TIM2 & TIM3 here
 	NVIC_DisableIRQ(TIM3_IRQn);
 	NVIC_DisableIRQ(TIM2_IRQn);
-#endif
-#ifdef AVRTARGET
-  STEP_DDR |= STEP_MASK;
-  STEPPERS_DISABLE_DDR |= 1<<STEPPERS_DISABLE_BIT;
-  DIRECTION_DDR |= DIRECTION_MASK;
-
-  // Configure Timer 1: Stepper Driver Interrupt
-  TCCR1B &= ~(1<<WGM13); // waveform generation = 0100 = CTC
-  TCCR1B |=  (1<<WGM12);
-  TCCR1A &= ~((1<<WGM11) | (1<<WGM10));
-  TCCR1A &= ~((1<<COM1A1) | (1<<COM1A0) | (1<<COM1B1) | (1<<COM1B0)); // Disconnect OC1 output
-  // TCCR1B = (TCCR1B & ~((1<<CS12) | (1<<CS11))) | (1<<CS10); // Set in st_go_idle().
-  // TIMSK1 &= ~(1<<OCIE1A);  // Set in st_go_idle().
-
-  // Configure Timer 0: Stepper Port Reset Interrupt
-  TIMSK0 &= ~((1<<OCIE0B) | (1<<OCIE0A) | (1<<TOIE0)); // Disconnect OC0 outputs and OVF interrupt.
-  TCCR0A = 0; // Normal operation
-  TCCR0B = 0; // Disable Timer0 until needed
-  TIMSK0 |= (1<<TOIE0); // Enable Timer0 overflow interrupt
-  #ifdef STEP_PULSE_DELAY
-    TIMSK0 |= (1<<OCIE0A); // Enable Timer0 Compare Match A interrupt
-  #endif
-#endif
 }
 
 
@@ -1182,7 +1079,7 @@ float st_get_realtime_rate()
   }
   return 0.0f;
 }
-#ifdef STM32F103C8
+
 void TIM_Configuration(TIM_TypeDef* TIMER, u16 Period, u16 Prescaler, u8 PP)
 {
 	TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
@@ -1208,4 +1105,3 @@ void TIM_Configuration(TIM_TypeDef* TIMER, u16 Period, u16 Prescaler, u8 PP)
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
 }
-#endif

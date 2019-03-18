@@ -20,23 +20,17 @@
 */
 
 #include "grbl.h"
-#ifdef STM32F103C8
 #include "stm32f10x.h"
 #include "core_cm3.h"
+
 #ifndef USEUSB
 #include "stm32f10x_usart.h"
 #else
 #include "usb_regs.h"
 #endif
-#endif
 
-#if !defined(STM32F103C8)
-#define RX_RING_BUFFER (RX_BUFFER_SIZE+1)
-#define TX_RING_BUFFER (TX_BUFFER_SIZE+1)
-#else
 #define RX_RING_BUFFER (RX_BUFFER_SIZE)
 #define TX_RING_BUFFER (TX_BUFFER_SIZE)
-#endif
 
 uint8_t serial_rx_buffer[RX_RING_BUFFER];
 uint8_t serial_rx_buffer_head = 0;
@@ -78,35 +72,16 @@ uint8_t serial_get_tx_buffer_count()
 
 void serial_init()
 {
-#ifdef AVRTARGET 
-    // Set baud rate
-  #if BAUD_RATE < 57600
-    uint16_t UBRR0_value = ((F_CPU / (8L * BAUD_RATE)) - 1)/2 ;
-    UCSR0A &= ~(1 << U2X0); // baud doubler off  - Only needed on Uno XXX
-  #else
-    uint16_t UBRR0_value = ((F_CPU / (4L * BAUD_RATE)) - 1)/2;
-    UCSR0A |= (1 << U2X0);  // baud doubler on for high baud rates, i.e. 115200
-  #endif
-  UBRR0H = UBRR0_value >> 8;
-  UBRR0L = UBRR0_value;
-
-  // enable rx, tx, and interrupt on complete reception of a byte
-  UCSR0B |= (1<<RXEN0 | 1<<TXEN0 | 1<<RXCIE0);
-
-  // defaults to 8-bit, no parity, 1 stop bit
-#endif
 }
 
 // Writes one byte to the TX serial buffer. Called by main program.
 void serial_write(uint8_t data) {
   // Calculate next head
   uint8_t next_head = serial_tx_buffer_head + 1;
-  #ifdef STM32F103C8
 #ifndef USEUSB
 	USART_SendData(USART1, data);
 	while (!(USART1->SR & USART_FLAG_TXE));		 //�ȴ��������
     return;
-#endif
 #endif
   if (next_head == TX_RING_BUFFER) { next_head = 0; }
 
@@ -120,32 +95,7 @@ void serial_write(uint8_t data) {
   serial_tx_buffer[serial_tx_buffer_head] = data;
 
   serial_tx_buffer_head = next_head;
-
-#ifdef AVRTARGET
-  // Enable Data Register Empty Interrupt to make sure tx-streaming is running
-  UCSR0B |=  (1 << UDRIE0);
-#endif
 }
-
-#ifdef AVRTARGET
-// Data Register Empty Interrupt handler
-ISR(SERIAL_UDRE)
-{
-  uint8_t tail = serial_tx_buffer_tail; // Temporary serial_tx_buffer_tail (to optimize for volatile)
-
-  // Send a byte from the buffer
-  UDR0 = serial_tx_buffer[tail];
-
-  // Update tail position
-  tail++;
-  if (tail == TX_RING_BUFFER) { tail = 0; }
-
-  serial_tx_buffer_tail = tail;
-
-  // Turn off Data Register Empty Interrupt to stop tx-streaming if this concludes the transfer
-  if (tail == serial_tx_buffer_head) { UCSR0B &= ~(1 << UDRIE0); }
-}
-#endif
 
 // Fetches the first byte in the serial read buffer. Called by main program.
 uint8_t serial_read()
@@ -164,13 +114,6 @@ uint8_t serial_read()
   }
 }
 
-#ifdef AVRTARGET
-ISR(SERIAL_RX)
-{
-  uint8_t data = UDR0;
-  uint8_t next_head;
-#endif
-#ifdef STM32F103C8
 #ifdef USEUSB
 void OnUsbDataRx(uint8_t* dataIn, uint8_t length)
 {
@@ -197,7 +140,6 @@ void USART1_IRQHandler (void)
     if (IIR & USART_FLAG_RXNE) 
     {                  // read interrupt
         data = USART1->DR & 0x1FF;
-#endif
 #endif
   // Pick off realtime command characters directly from the serial stream. These characters are
   // not passed into the main buffer, but these set system state flag bits for realtime execution.
@@ -249,14 +191,12 @@ void USART1_IRQHandler (void)
         }
       }
   }
-#ifdef STM32F103C8
 #ifndef USEUSB
         USART1->SR &= ~USART_FLAG_RXNE;	          // clear interrupt
 #else
     length--;
 #endif
    }
-#endif
 }
 
 void serial_reset_read_buffer()

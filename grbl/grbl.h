@@ -25,23 +25,8 @@
 #define GRBL_VERSION "1.1f"
 #define GRBL_VERSION_BUILD "20170801"
 
-#if !defined(STM32F103C8)
-#define AVRTARGET
-#endif
-
 // Define standard libraries used by Grbl.
-#ifdef AVRTARGET
-#include <avr/io.h>
-#include <avr/pgmspace.h>
-#include <avr/interrupt.h>
-#include <avr/wdt.h>
-#include <util/delay.h>
-#include <inttypes.h>
-#include <stdbool.h>
-#define PORTPINDEF uint8_t
-#endif
 #include <math.h>
-#ifdef STM32F103C8
 #include "stm32f10x.h"
 #include "stm32f10x_gpio.h"
 #include "stm32f10x_exti.h"
@@ -57,7 +42,8 @@ void _delay_us(uint32_t x);
 typedef int bool;
 //#define NOEEPROMSUPPORT
 #define printPgmString printString
-#endif
+
+
 #include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
